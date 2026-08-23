@@ -232,7 +232,7 @@
   <div class="card">
     <div class="card-header">
       <span class="step-num">1</span>
-      <span class="card-title">Her Pay Rate & Set-Aside</span>
+      <span class="card-title">Your Pay Rate & Set-Aside</span>
     </div>
 
     <div class="toggle-group">
@@ -243,7 +243,7 @@
     <!-- Hourly Inputs -->
     <div id="hourlyInputs" class="input-row">
       <div class="input-field">
-        <label for="hourlyRate">Hourly Base Rate ($)</label>
+        <label for="hourlyRate">Your Hourly Base Rate ($)</label>
         <input type="number" id="hourlyRate" value="22" min="1" step="0.5" oninput="calculatePlan()" />
       </div>
     </div>
@@ -251,11 +251,11 @@
     <!-- Flat Rate Inputs -->
     <div id="flatInputs" class="input-row" style="display: none;">
       <div class="input-field">
-        <label for="flat8Rate">8-Hr Flat ($)</label>
+        <label for="flat8Rate">8-Hr Flat Rate ($)</label>
         <input type="number" id="flat8Rate" value="180" min="1" oninput="calculatePlan()" />
       </div>
       <div class="input-field">
-        <label for="flat12Rate">12-Hr Flat ($)</label>
+        <label for="flat12Rate">12-Hr Flat Rate ($)</label>
         <input type="number" id="flat12Rate" value="270" min="1" oninput="calculatePlan()" />
       </div>
     </div>
@@ -277,12 +277,12 @@
   <div class="card">
     <div class="card-header">
       <span class="step-num">2</span>
-      <span class="card-title">Her Goal & Timeline</span>
+      <span class="card-title">Your Goal & Timeline</span>
     </div>
 
     <div class="input-row">
       <div class="input-field">
-        <label for="targetGoal">Cash Needed in Hand ($)</label>
+        <label for="targetGoal">Cash You Need in Hand ($)</label>
         <input type="number" id="targetGoal" value="600" min="10" step="25" oninput="calculatePlan()" />
       </div>
     </div>
@@ -294,14 +294,14 @@
 
     <div class="input-row" id="daysInputGroup">
       <div class="input-field">
-        <label for="daysCount">Days Available to Work</label>
+        <label for="daysCount">Days You Have to Work</label>
         <input type="number" id="daysCount" value="7" min="1" max="90" oninput="calculatePlan()" />
       </div>
     </div>
 
     <div class="input-row" id="dateInputGroup" style="display: none;">
       <div class="input-field">
-        <label for="targetDate">Need Money By</label>
+        <label for="targetDate">You Need Money By</label>
         <input type="date" id="targetDate" onchange="onDateChange()" />
       </div>
     </div>
@@ -311,13 +311,13 @@
   <div class="card plan-card">
     <div class="card-header">
       <span class="step-num" style="background: #38bdf8;">3</span>
-      <span class="card-title" style="color: #38bdf8;">The Shift Plan</span>
+      <span class="card-title" style="color: #38bdf8;">Your Shift Plan</span>
     </div>
 
     <div class="gross-banner">
-      <div class="gross-label">Total Gross to Earn</div>
+      <div class="gross-label">Total Gross You Must Earn</div>
       <div class="gross-amount" id="grossNeededText">$800</div>
-      <div class="gross-sub" id="grossSubText">Puts <strong>$600</strong> in hand after setting aside 25% ($200)</div>
+      <div class="gross-sub" id="grossSubText">Puts <strong>$600</strong> in your hand after setting aside 25% ($200)</div>
     </div>
 
     <div class="shifts-grid">
@@ -365,7 +365,7 @@
 
       <!-- Burnout Warning Banner -->
       <div class="burnout-warning" id="burnoutBanner">
-        ⚠️ <strong>Heavy Schedule Warning:</strong> Reaching this goal in this timeframe requires working every single day or pulling double shifts. Consider extending the deadline if possible.
+        ⚠️ <strong>Heavy Schedule Warning:</strong> Reaching this goal in this timeframe requires working every single day or pulling double shifts. Consider extending your deadline if possible.
       </div>
     </div>
   </div>
@@ -465,7 +465,7 @@
 
     document.getElementById('grossNeededText').innerText = '$' + Math.round(grossNeeded).toLocaleString();
     document.getElementById('grossSubText').innerHTML = 
-      `Puts <strong>$${Math.round(netGoal).toLocaleString()}</strong> in hand after setting aside ${(reservePct * 100).toFixed(0)}% ($${Math.round(reserveAmount).toLocaleString()})`;
+      `Puts <strong>$${Math.round(netGoal).toLocaleString()}</strong> in your hand after setting aside ${(reservePct * 100).toFixed(0)}% ($${Math.round(reserveAmount).toLocaleString()})`;
 
     let gross8 = 0;
     let gross12 = 0;
