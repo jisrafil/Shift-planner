@@ -1,536 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Daily Pay & Shift Planner</title>
-<style>
-  :root {
-    --bg: #0f172a;
-    --card-bg: #1e293b;
-    --card-border: #334155;
-    --accent: #38bdf8;
-    --accent-glow: rgba(56, 189, 248, 0.15);
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --green: #4ade80;
-    --green-bg: rgba(74, 222, 128, 0.1);
-    --amber: #fbbf24;
-    --amber-bg: rgba(251, 191, 36, 0.1);
-    --red: #f87171;
-    --red-bg: rgba(248, 113, 113, 0.15);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text-main); padding: 16px 12px; display: flex; justify-content: center; }
-  .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
-
-  /* Card Styles */
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  }
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .step-num {
-    background: var(--accent);
-    color: #000;
-    font-weight: 700;
-    font-size: 12px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .card-title { font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-main); }
-
-  /* Form Elements */
-  .toggle-group {
-    display: flex;
-    background: #0b1120;
-    padding: 3px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-  }
-  .toggle-btn {
-    flex: 1;
-    padding: 8px 10px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .toggle-btn.active {
-    background: var(--accent);
-    color: #0b1120;
-  }
-  .input-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-  .input-field {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-  input[type="number"], input[type="date"] {
-    background: #0b1120;
-    border: 1px solid var(--card-border);
-    color: #fff;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    outline: none;
-    width: 100%;
-  }
-  input[type="number"]:focus, input[type="date"]:focus {
-    border-color: var(--accent);
-  }
-
-  /* Slider */
-  .slider-box {
-    background: #0b1120;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid var(--card-border);
-  }
-  .slider-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 8px;
-  }
-  .slider-val { color: var(--accent); font-weight: 700; }
-  input[type="range"] {
-    width: 100%;
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
-
-  /* Results / The Plan */
-  .plan-card {
-    border: 1px solid #0284c7;
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  }
-  .gross-banner {
-    background: var(--accent-glow);
-    border: 1px dashed var(--accent);
-    border-radius: 12px;
-    padding: 12px;
-    text-align: center;
-    margin-bottom: 16px;
-  }
-  .gross-label { font-size: 11px; text-transform: uppercase; color: var(--accent); font-weight: 700; letter-spacing: 0.5px; }
-  .gross-amount { font-size: 26px; font-weight: 800; color: #fff; margin: 4px 0; }
-  .gross-sub { font-size: 12px; color: var(--text-muted); }
-
-  .shifts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .shift-col {
-    background: #0b1120;
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    position: relative;
-  }
-  .shift-type-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-  }
-  .shift-badge {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-main);
-  }
-  .shifts-needed-count {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--text-main);
-    line-height: 1;
-    margin: 4px 0;
-  }
-  .shifts-needed-label { font-size: 11px; color: var(--text-muted); }
-  
-  .takehome-box {
-    font-size: 11px;
-    color: var(--text-muted);
-    background: rgba(255,255,255,0.03);
-    padding: 6px;
-    border-radius: 6px;
-  }
-  .takehome-amt { color: var(--green); font-weight: 700; }
-
-  /* Pace & Progress Bar */
-  .pace-wrapper { margin-top: 4px; }
-  .pace-text { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-  .progress-bg {
-    width: 100%;
-    height: 8px;
-    background: #1e293b;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.3s ease, background-color 0.3s ease;
-  }
-
-  /* Warning Alert */
-  .burnout-warning {
-    grid-column: span 2;
-    background: var(--red-bg);
-    border: 1px solid var(--red);
-    color: #fca5a5;
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 12px;
-    line-height: 1.4;
-    display: none;
-    font-weight: 500;
-  }
-  .pace-badge {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-  .pace-safe { background: var(--green-bg); color: var(--green); }
-  .pace-warn { background: var(--amber-bg); color: var(--amber); }
-  .pace-danger { background: var(--red-bg); color: var(--red); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nurse Shift Tracker</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warning: #e67e22;
+        }
+        body { font-family: system-ui, sans-serif; padding: 20px; background: #f4f7f6; color: var(--primary); }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        h2 { margin-top: 0; color: var(--accent); }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select, button { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        button { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #2980b9; }
+        .shift-list { margin-top: 20px; }
+        .shift-item { background: #fff; padding: 15px; border-left: 5px solid var(--accent); margin-bottom: 10px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .signed-off { border-left-color: var(--success); background: #f0fff4; }
+        .not-signed { border-left-color: var(--warning); background: #fff5eb; }
+        .tag { font-size: 12px; padding: 3px 8px; border-radius: 10px; color: white; display: inline-block; }
+        .tag-signed { background: var(--success); }
+        .tag-pending { background: var(--warning); }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <!-- STEP 1: RATE & WITHHOLDING -->
-  <div class="card">
-    <div class="card-header">
-      <span class="step-num">1</span>
-      <span class="card-title">Your Pay Rate & Set-Aside</span>
+<div class="card">
+    <h2>🏥 Shift Entry</h2>
+    
+    <div class="input-group">
+        <label>Facility Name</label>
+        <input type="text" id="facility" placeholder="e.g. St. Mary's General">
     </div>
 
-    <div class="toggle-group">
-      <button class="toggle-btn active" id="typeHourlyBtn" onclick="setRateType('hourly')">Hourly Pay</button>
-      <button class="toggle-btn" id="typeFlatBtn" onclick="setRateType('flat')">Flat Shift Rate</button>
-    </div>
-
-    <!-- Hourly Inputs -->
-    <div id="hourlyInputs" class="input-row">
-      <div class="input-field">
-        <label for="hourlyRate">Your Hourly Base Rate ($)</label>
-        <input type="number" id="hourlyRate" value="22" min="1" step="0.5" oninput="calculatePlan()" />
-      </div>
-    </div>
-
-    <!-- Flat Rate Inputs -->
-    <div id="flatInputs" class="input-row" style="display: none;">
-      <div class="input-field">
-        <label for="flat8Rate">8-Hr Flat Rate ($)</label>
-        <input type="number" id="flat8Rate" value="180" min="1" oninput="calculatePlan()" />
-      </div>
-      <div class="input-field">
-        <label for="flat12Rate">12-Hr Flat Rate ($)</label>
-        <input type="number" id="flat12Rate" value="270" min="1" oninput="calculatePlan()" />
-      </div>
-    </div>
-
-    <!-- Set-aside Slider -->
-    <div class="slider-box">
-      <div class="slider-header">
-        <span>Set aside for Taxes & Bills:</span>
-        <span class="slider-val" id="reserveDisplay">25%</span>
-      </div>
-      <input type="range" id="reserveSlider" min="0" max="60" value="25" step="1" oninput="onSliderChange(this.value)" />
-      <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-        Leave this in your account untouched for rent, bills & taxes.
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 2: THE GOAL -->
-  <div class="card">
-    <div class="card-header">
-      <span class="step-num">2</span>
-      <span class="card-title">Your Goal & Timeline</span>
-    </div>
-
-    <div class="input-row">
-      <div class="input-field">
-        <label for="targetGoal">Cash You Need in Hand ($)</label>
-        <input type="number" id="targetGoal" value="600" min="10" step="25" oninput="calculatePlan()" />
-      </div>
-    </div>
-
-    <div class="toggle-group">
-      <button class="toggle-btn active" id="timeDaysBtn" onclick="setTimeType('days')">Number of Days</button>
-      <button class="toggle-btn" id="timeDateBtn" onclick="setTimeType('date')">Target Date</button>
-    </div>
-
-    <div class="input-row" id="daysInputGroup">
-      <div class="input-field">
-        <label for="daysCount">Days You Have to Work</label>
-        <input type="number" id="daysCount" value="7" min="1" max="90" oninput="calculatePlan()" />
-      </div>
-    </div>
-
-    <div class="input-row" id="dateInputGroup" style="display: none;">
-      <div class="input-field">
-        <label for="targetDate">You Need Money By</label>
-        <input type="date" id="targetDate" onchange="onDateChange()" />
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 3: THE PLAN -->
-  <div class="card plan-card">
-    <div class="card-header">
-      <span class="step-num" style="background: #38bdf8;">3</span>
-      <span class="card-title" style="color: #38bdf8;">Your Shift Plan</span>
-    </div>
-
-    <div class="gross-banner">
-      <div class="gross-label">Total Gross You Must Earn</div>
-      <div class="gross-amount" id="grossNeededText">$800</div>
-      <div class="gross-sub" id="grossSubText">Puts <strong>$600</strong> in your hand after setting aside 25% ($200)</div>
-    </div>
-
-    <div class="shifts-grid">
-      <!-- 8-Hour Shift Column -->
-      <div class="shift-col">
-        <div class="shift-type-header">
-          <span class="shift-badge">8-Hr Shifts</span>
-          <span class="pace-badge" id="pace8Badge">Pace</span>
+    <div class="input-group" style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>Date</label>
+            <input type="date" id="shiftDate">
         </div>
-        <div class="shifts-needed-count" id="count8Shifts">0</div>
-        <div class="shifts-needed-label" id="shifts8Label">shifts needed</div>
-        
-        <div class="takehome-box">
-          Actual Take-Home: <br><strong class="takehome-amt" id="takehome8">$0</strong>
+        <div style="flex: 1;">
+            <label>Hourly Rate ($)</label>
+            <input type="number" id="rate" value="50">
         </div>
-
-        <div class="pace-wrapper">
-          <div class="pace-text" id="pace8Text">0 hrs / day avg</div>
-          <div class="progress-bg">
-            <div class="progress-fill" id="progress8Bar" style="width: 0%;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 12-Hour Shift Column -->
-      <div class="shift-col">
-        <div class="shift-type-header">
-          <span class="shift-badge">12-Hr Shifts</span>
-          <span class="pace-badge" id="pace12Badge">Pace</span>
-        </div>
-        <div class="shifts-needed-count" id="count12Shifts">0</div>
-        <div class="shifts-needed-label" id="shifts12Label">shifts needed</div>
-
-        <div class="takehome-box">
-          Actual Take-Home: <br><strong class="takehome-amt" id="takehome12">$0</strong>
-        </div>
-
-        <div class="pace-wrapper">
-          <div class="pace-text" id="pace12Text">0 hrs / day avg</div>
-          <div class="progress-bg">
-            <div class="progress-fill" id="progress12Bar" style="width: 0%;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Burnout Warning Banner -->
-      <div class="burnout-warning" id="burnoutBanner">
-        ⚠️ <strong>Heavy Schedule Warning:</strong> Reaching this goal in this timeframe requires working every single day or pulling double shifts. Consider extending your deadline if possible.
-      </div>
     </div>
-  </div>
+
+    <div class="input-group" style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>Start Time</label>
+            <input type="time" id="startTime">
+        </div>
+        <div style="flex: 1;">
+            <label>End Time</label>
+            <input type="time" id="endTime">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>
+            <input type="checkbox" id="signed" style="width: auto;"> ✍️ Timesheet Signed?
+        </label>
+    </div>
+
+    <button onclick="addShift()">Save Shift to Ledger</button>
+</div>
+
+<div class="shift-list" id="ledger">
+    <!-- Shifts will appear here -->
 </div>
 
 <script>
-  let rateType = 'hourly';
-  let timeType = 'days';
+    // Load data on start
+    let shifts = JSON.parse(localStorage.getItem('nurse_shifts')) || [];
+    renderShifts();
 
-  function loadSavedData() {
-    try {
-      const saved = JSON.parse(localStorage.getItem('shift_planner_prefs') || '{}');
-      if (saved.rateType) rateType = saved.rateType;
-      if (saved.hourlyRate) document.getElementById('hourlyRate').value = saved.hourlyRate;
-      if (saved.flat8Rate) document.getElementById('flat8Rate').value = saved.flat8Rate;
-      if (saved.flat12Rate) document.getElementById('flat12Rate').value = saved.flat12Rate;
-      if (saved.reserve) {
-        document.getElementById('reserveSlider').value = saved.reserve;
-        document.getElementById('reserveDisplay').innerText = saved.reserve + '%';
-      }
-      if (saved.targetGoal) document.getElementById('targetGoal').value = saved.targetGoal;
-      if (saved.daysCount) document.getElementById('daysCount').value = saved.daysCount;
-    } catch (e) {}
+    function addShift() {
+        const shift = {
+            id: Date.now(),
+            facility: document.getElementById('facility').value,
+            date: document.getElementById('shiftDate').value,
+            rate: document.getElementById('rate').value,
+            start: document.getElementById('startTime').value,
+            end: document.getElementById('endTime').value,
+            signed: document.getElementById('signed').checked
+        };
 
-    setRateType(rateType, false);
-    setTimeType('days', false);
+        if(!shift.facility || !shift.date) {
+            alert("Please at least fill in the Facility and Date!");
+            return;
+        }
 
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    document.getElementById('targetDate').value = nextWeek.toISOString().split('T')[0];
-
-    calculatePlan();
-  }
-
-  function saveData() {
-    try {
-      const data = {
-        rateType: rateType,
-        hourlyRate: document.getElementById('hourlyRate').value,
-        flat8Rate: document.getElementById('flat8Rate').value,
-        flat12Rate: document.getElementById('flat12Rate').value,
-        reserve: document.getElementById('reserveSlider').value,
-        targetGoal: document.getElementById('targetGoal').value,
-        daysCount: document.getElementById('daysCount').value
-      };
-      localStorage.setItem('shift_planner_prefs', JSON.stringify(data));
-    } catch (e) {}
-  }
-
-  function setRateType(type, triggerCalc = true) {
-    rateType = type;
-    document.getElementById('typeHourlyBtn').classList.toggle('active', type === 'hourly');
-    document.getElementById('typeFlatBtn').classList.toggle('active', type === 'flat');
-    document.getElementById('hourlyInputs').style.display = type === 'hourly' ? 'flex' : 'none';
-    document.getElementById('flatInputs').style.display = type === 'flat' ? 'flex' : 'none';
-    if (triggerCalc) { saveData(); calculatePlan(); }
-  }
-
-  function setTimeType(type, triggerCalc = true) {
-    timeType = type;
-    document.getElementById('timeDaysBtn').classList.toggle('active', type === 'days');
-    document.getElementById('timeDateBtn').classList.toggle('active', type === 'date');
-    document.getElementById('daysInputGroup').style.display = type === 'days' ? 'flex' : 'none';
-    document.getElementById('dateInputGroup').style.display = type === 'date' ? 'flex' : 'none';
-    if (type === 'date') onDateChange();
-    if (triggerCalc) calculatePlan();
-  }
-
-  function onSliderChange(val) {
-    document.getElementById('reserveDisplay').innerText = val + '%';
-    saveData();
-    calculatePlan();
-  }
-
-  function onDateChange() {
-    const val = document.getElementById('targetDate').value;
-    if (!val) return;
-    const target = new Date(val + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const diffTime = target - today;
-    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-    document.getElementById('daysCount').value = diffDays;
-    calculatePlan();
-  }
-
-  function calculatePlan() {
-    saveData();
-
-    const netGoal = parseFloat(document.getElementById('targetGoal').value) || 0;
-    const reservePct = (parseFloat(document.getElementById('reserveSlider').value) || 0) / 100;
-    const days = Math.max(1, parseFloat(document.getElementById('daysCount').value) || 1);
-
-    const keepFactor = Math.max(0.01, 1 - reservePct);
-    const grossNeeded = netGoal / keepFactor;
-    const reserveAmount = grossNeeded - netGoal;
-
-    document.getElementById('grossNeededText').innerText = '$' + Math.round(grossNeeded).toLocaleString();
-    document.getElementById('grossSubText').innerHTML = 
-      `Puts <strong>$${Math.round(netGoal).toLocaleString()}</strong> in your hand after setting aside ${(reservePct * 100).toFixed(0)}% ($${Math.round(reserveAmount).toLocaleString()})`;
-
-    let gross8 = 0;
-    let gross12 = 0;
-
-    if (rateType === 'hourly') {
-      const hourly = parseFloat(document.getElementById('hourlyRate').value) || 0;
-      gross8 = hourly * 8;
-      gross12 = hourly * 12;
-    } else {
-      gross8 = parseFloat(document.getElementById('flat8Rate').value) || 0;
-      gross12 = parseFloat(document.getElementById('flat12Rate').value) || 0;
+        shifts.unshift(shift); // Add to beginning of list
+        localStorage.setItem('nurse_shifts', JSON.stringify(shifts));
+        renderShifts();
+        
+        // Clear form for next time
+        document.getElementById('facility').value = "";
+        document.getElementById('signed').checked = false;
     }
 
-    const net8PerShift = gross8 * keepFactor;
-    const net12PerShift = gross12 * keepFactor;
-
-    const shifts8Exact = net8PerShift > 0 ? netGoal / net8PerShift : 0;
-    const shifts12Exact = net12PerShift > 0 ? netGoal / net12PerShift : 0;
-
-    const shifts8Whole = Math.ceil(shifts8Exact);
-    const shifts12Whole = Math.ceil(shifts12Exact);
-
-    document.getElementById('count8Shifts').innerText = shifts8Whole;
-    document.getElementById('count12Shifts').innerText = shifts12Whole;
-
-    document.getElementById('takehome8').innerText = '$' + Math.round(shifts8Whole * net8PerShift).toLocaleString();
-    document.getElementById('takehome12').innerText = '$' + Math.round(shifts12Whole * net12PerShift).toLocaleString();
-
-    const avgHoursPerDay8 = (shifts8Whole * 8) / days;
-    const avgHoursPerDay12 = (shifts12Whole * 12) / days;
-
-    document.getElementById('pace8Text').innerText = `${avgHoursPerDay8.toFixed(1)} hrs/day avg (${(shifts8Whole / days).toFixed(1)} shifts/day)`;
-    document.getElementById('pace12Text').innerText = `${avgHoursPerDay12.toFixed(1)} hrs/day avg (${(shifts12Whole / days).toFixed(1)} shifts/day)`;
-
-    updateProgressBar('progress8Bar', 'pace8Badge', shifts8Whole, days);
-    updateProgressBar('progress12Bar', 'pace12Badge', shifts12Whole, days);
-
-    const burnout = avgHoursPerDay8 > 12 && avgHoursPerDay12 > 12;
-    document.getElementById('burnoutBanner').style.display = burnout ? 'block' : 'none';
-  }
-
-  function updateProgressBar(barId, badgeId, shifts, days) {
-    const bar = document.getElementById(barId);
-    const badge = document.getElementById(badgeId);
-    const ratio = shifts / days;
-    const pct = Math.min(100, Math.round(ratio * 100));
-    
-    bar.style.width = pct + '%';
-
-    if (ratio <= 0.6) {
-      bar.style.backgroundColor = 'var(--green)';
-      badge.innerText = 'Comfortable';
-      badge.className = 'pace-badge pace-safe';
-    } else if (ratio <= 1.0) {
-      bar.style.backgroundColor = 'var(--amber)';
-      badge.innerText = 'Full Pace';
-      badge.className = 'pace-badge pace-warn';
-    } else {
-      bar.style.backgroundColor = 'var(--red)';
-      badge.innerText = 'Overtime Pace';
-      badge.className = 'pace-badge pace-danger';
+    function deleteShift(id) {
+        shifts = shifts.filter(s => s.id !== id);
+        localStorage.setItem('nurse_shifts', JSON.stringify(shifts));
+        renderShifts();
     }
-  }
 
-  window.onload = loadSavedData;
+    function renderShifts() {
+        const ledger = document.getElementById('ledger');
+        ledger.innerHTML = '<h3>Recent Shifts</h3>';
+        
+        shifts.forEach(s => {
+            const statusClass = s.signed ? 'signed-off' : 'not-signed';
+            const statusTag = s.signed ? '<span class="tag tag-signed">Signed</span>' : '<span class="tag tag-pending">Pending Signature</span>';
+            
+            ledger.innerHTML += `
+                <div class="shift-item ${statusClass}">
+                    <strong>${s.date}</strong> - ${s.facility} ${statusTag}<br>
+                    <small>${s.start} to ${s.end} | Rate: $${s.rate}/hr</small>
+                    <button onclick="deleteShift(${s.id})" style="width: auto; padding: 5px 10px; background: #e74c3c; float: right; font-size: 12px;">Delete</button>
+                    <div style="clear: both;"></div>
+                </div>
+            `;
+        });
+    }
 </script>
+
 </body>
 </html>
