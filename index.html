@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nurse Ledger: Final Master</title>
+    <title>Nurse Ledger: Pro Master</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --warning: #f39c12; --danger: #e74c3c; --tax-color: #8e44ad; --gas-color: #16a085; }
         body { font-family: -apple-system, sans-serif; padding: 10px; background: #f0f2f5; color: var(--primary); }
@@ -14,7 +14,7 @@
         .progress-bar { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
         
         .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        .editing-mode { background: #e3f2fd; border: 2px solid var(--accent); }
+        .editing-mode { background: #e3f2fd !important; border: 2px solid var(--accent); }
 
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .stat-card { background: white; padding: 12px; border-radius: 10px; text-align: center; border-bottom: 4px solid #ddd; }
@@ -30,28 +30,27 @@
         .shift-card { background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 6px solid var(--accent); position: relative; }
         .tax-line { color: var(--tax-color); font-weight: bold; font-size: 0.8rem; border-top: 1px dashed #eee; margin-top: 8px; padding-top: 5px; }
         
-        .btn-small { background: none; border: 1px solid #ddd; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
+        .btn-small { background: none; border: 1px solid #ddd; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; margin-right: 5px; }
 
-        /* PRINT SETTINGS - Hides forms when printing */
         @media print {
-            .goal-box, #formCard, .settings-card, .btn-export, .btn-small, .btn-save { display: none !important; }
+            .goal-box, #formCard, .settings-card, .btn-export, .btn-small, .btn-save, h3 { display: none !important; }
             body { background: white; }
             .shift-card { border: 1px solid #ccc; break-inside: avoid; }
-            .container { max-width: 100%; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- TOP GOAL -->
     <div class="goal-box">
         <div style="font-size: 0.7rem; opacity: 0.8;">MONTHLY SPENDABLE GOAL</div>
-        <input type="number" id="goalInput" value="2000" onchange="renderShifts()" style="background: transparent; color: white; border: 1px dashed rgba(255,255,255,0.4); text-align: center; font-size: 1.8rem; width: 160px; outline: none;">
+        <input type="number" id="goalInput" value="2000" oninput="renderShifts()" style="background: transparent; color: white; border: 1px dashed rgba(255,255,255,0.4); text-align: center; font-size: 1.8rem; width: 160px; outline: none;">
         <div class="progress-container"><div id="progressBar" class="progress-bar"></div></div>
-        <div id="goalStatus" style="font-size: 0.85rem;">...</div>
+        <div id="goalStatus" style="font-size: 0.85rem;">Calculating...</div>
     </div>
 
-    <button class="btn-export" onclick="downloadCSV()">📥 Download CSV Report (Excel)</button>
+    <button class="btn-export" onclick="downloadCSV()">📥 Download Excel/CSV Report</button>
 
     <div class="summary-grid">
         <div class="stat-card" style="border-color: var(--success); grid-column: span 2;">
@@ -68,7 +67,7 @@
         
         <label>Facility Name</label>
         <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-            <input type="text" id="facility" placeholder="Facility/Client">
+            <input type="text" id="facility" placeholder="Where are you?">
             <button onclick="saveCurrentFacility()" style="width: auto; background: #eee; border: 1px solid #ccc; border-radius: 8px; padding: 0 10px;">⭐</button>
         </div>
         <div id="favList"></div>
@@ -83,8 +82,8 @@
             <div style="flex: 1;"><label>End</label><input type="time" id="endTime" value="19:00"></div>
         </div>
 
-        <label style="background: #fff9e6; padding: 10px; border-radius: 8px; border: 1px solid #ffeeba; margin-top: 10px;">
-            <input type="checkbox" id="breakTaken" style="width: auto; height: auto;"> 🥪 Did you take a 30-min break?
+        <label style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer;">
+            <input type="checkbox" id="breakTaken" style="width: auto;"> 🥪 Took 30-min break?
         </label>
 
         <label>Travel Method</label>
@@ -94,7 +93,7 @@
                 <option value="lyft">🚕 Lyft/Uber ($)</option>
                 <option value="drive">🚗 My Car (IRS .67)</option>
             </select>
-            <input type="number" id="travelVal" placeholder="Miles/Cost" style="flex: 0.8;">
+            <input type="number" id="travelVal" placeholder="Miles/Cost" value="0" style="flex: 0.8;">
         </div>
 
         <input type="hidden" id="editingId" value="">
@@ -105,9 +104,9 @@
     <!-- SETTINGS -->
     <div class="card settings-card" style="background: #eef2f3; padding: 10px;">
         <div style="display: flex; gap: 8px;">
-            <div><label>Tax %</label><input type="number" id="taxRate" value="25" onchange="renderShifts()"></div>
-            <div><label>Gas $</label><input type="number" id="gasPrice" value="3.50" step="0.01" onchange="renderShifts()"></div>
-            <div><label>MPG</label><input type="number" id="mpg" value="25" onchange="renderShifts()"></div>
+            <div><label>Tax %</label><input type="number" id="taxRate" value="25" oninput="renderShifts()"></div>
+            <div><label>Gas $</label><input type="number" id="gasPrice" value="3.50" step="0.01" oninput="renderShifts()"></div>
+            <div><label>MPG</label><input type="number" id="mpg" value="25" oninput="renderShifts()"></div>
         </div>
     </div>
 
@@ -115,14 +114,15 @@
 </div>
 
 <script>
+    // Initialize data
     let shifts = JSON.parse(localStorage.getItem('nurse_master_data')) || [];
     let favorites = JSON.parse(localStorage.getItem('nurse_fav_facilities')) || [];
     
+    // Set current date
     document.getElementById('shiftDate').valueAsDate = new Date();
-    renderFavorites();
 
     function saveCurrentFacility() {
-        const name = document.getElementById('facility').value;
+        const name = document.getElementById('facility').value.trim();
         if(name && !favorites.includes(name)) {
             favorites.push(name);
             localStorage.setItem('nurse_fav_facilities', JSON.stringify(favorites));
@@ -137,7 +137,7 @@
 
     function addShift() {
         const id = document.getElementById('editingId').value;
-        const facility = document.getElementById('facility').value;
+        const facility = document.getElementById('facility').value.trim();
         const date = document.getElementById('shiftDate').value;
         const rate = parseFloat(document.getElementById('rate').value) || 0;
         const travelType = document.getElementById('travelType').value;
@@ -146,8 +146,12 @@
         const end = document.getElementById('endTime').value;
         const breakTaken = document.getElementById('breakTaken').checked;
 
-        if(!facility) return alert("Enter Facility Name");
+        if(!facility || !date || !start || !end) {
+            alert("Please fill in Facility, Date, and Times!");
+            return;
+        }
 
+        // Calculation logic
         const sTime = new Date(`2000-01-01T${start}`);
         const eTime = new Date(`2000-01-01T${end}`);
         let hours = (eTime - sTime) / 1000 / 60 / 60;
@@ -155,13 +159,16 @@
         if (breakTaken) hours -= 0.5;
 
         let travelCost = 0;
-        const gasP = parseFloat(document.getElementById('gasPrice').value);
-        const carM = parseFloat(document.getElementById('mpg').value);
+        const gasP = parseFloat(document.getElementById('gasPrice').value) || 0;
+        const carM = parseFloat(document.getElementById('mpg').value) || 1;
         if (travelType === 'gas') travelCost = (travelVal / carM) * gasP;
         else if (travelType === 'lyft') travelCost = travelVal;
         else if (travelType === 'drive') travelCost = travelVal * 0.67;
 
-        const shiftData = { id: id ? parseInt(id) : Date.now(), facility, date, rate, hours, travelCost, travelType, travelVal, start, end, breakTaken };
+        const shiftData = { 
+            id: id ? parseInt(id) : Date.now(), 
+            facility, date, rate, hours, travelCost, travelType, travelVal, start, end, breakTaken 
+        };
 
         if(id) {
             shifts = shifts.map(s => s.id === parseInt(id) ? shiftData : s);
@@ -175,14 +182,16 @@
 
     function editShift(id) {
         const s = shifts.find(x => x.id === id);
+        if(!s) return;
+        
         document.getElementById('editingId').value = s.id;
         document.getElementById('facility').value = s.facility;
         document.getElementById('shiftDate').value = s.date;
         document.getElementById('rate').value = s.rate;
-        document.getElementById('startTime').value = s.start;
-        document.getElementById('endTime').value = s.end;
-        document.getElementById('travelType').value = s.travelType;
-        document.getElementById('travelVal').value = s.travelVal;
+        document.getElementById('startTime').value = s.start || "07:00";
+        document.getElementById('endTime').value = s.end || "19:00";
+        document.getElementById('travelType').value = s.travelType || "gas";
+        document.getElementById('travelVal').value = s.travelVal || 0;
         document.getElementById('breakTaken').checked = s.breakTaken || false;
         
         document.getElementById('formCard').classList.add('editing-mode');
@@ -202,12 +211,21 @@
         document.getElementById('cancelBtn').style.display = "none";
     }
 
+    function deleteShift(id) {
+        if(confirm("Delete this shift?")) {
+            shifts = shifts.filter(s => s.id !== id);
+            saveAndRender();
+        }
+    }
+
     function downloadCSV() {
         if(shifts.length === 0) return alert("No shifts to export!");
         let csv = "Date,Facility,Hours,Rate,TravelCost,NetPay\n";
+        const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+        
         shifts.forEach(s => {
-            const tax = (s.hours * s.rate) * (parseFloat(document.getElementById('taxRate').value)/100);
-            const net = (s.hours * s.rate) - s.travelCost - tax;
+            const gross = (s.hours || 0) * (s.rate || 0);
+            const net = gross - (s.travelCost || 0) - (gross * taxRate);
             csv += `${s.date},${s.facility},${s.hours},${s.rate},${s.travelCost.toFixed(2)},${net.toFixed(2)}\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
@@ -215,14 +233,9 @@
         const a = document.createElement('a');
         a.setAttribute('href', url);
         a.setAttribute('download', 'Nurse_Shifts_Export.csv');
+        document.body.appendChild(a);
         a.click();
-    }
-
-    function deleteShift(id) {
-        if(confirm("Delete this shift?")) {
-            shifts = shifts.filter(s => s.id !== id);
-            saveAndRender();
-        }
+        document.body.removeChild(a);
     }
 
     function saveAndRender() {
@@ -233,16 +246,55 @@
     function renderShifts() {
         const ledger = document.getElementById('ledger');
         const goalVal = parseFloat(document.getElementById('goalInput').value) || 1;
-        const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+        const taxRate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100;
+        
         let totalGross = 0, totalTravel = 0, totalTax = 0;
 
-        ledger.innerHTML = '<h3 class="no-print">Recent History</h3>';
+        ledger.innerHTML = '<h3>Recent History</h3>';
+        
         shifts.forEach(s => {
-            const gross = s.hours * s.rate;
+            // Fix for old data: ensure hours and rate are numbers
+            const h = parseFloat(s.hours) || 0;
+            const r = parseFloat(s.rate) || 0;
+            const t = parseFloat(s.travelCost) || 0;
+
+            const gross = h * r;
             const shiftTax = gross * taxRate;
-            const shiftNet = gross - s.travelCost - shiftTax;
-            totalGross += gross; totalTravel += s.travelCost; totalTax += shiftTax;
+            const shiftNet = gross - t - shiftTax;
+            
+            totalGross += gross; 
+            totalTravel += t; 
+            totalTax += shiftTax;
 
             ledger.innerHTML += `
                 <div class="shift-card">
                     <div style="display: flex; justify-content: space-between;">
+                        <div><strong>${s.facility}</strong><br><span style="font-size:0.75rem;">${s.date} • ${h}h</span></div>
+                        <div style="text-align: right;"><div style="color:var(--success); font-weight:bold;">+$${gross.toFixed(2)}</div></div>
+                    </div>
+                    <div class="tax-line">Spendable: $${shiftNet.toFixed(2)} <span style="float:right; font-weight:normal; color:#888;">Travel: $${t.toFixed(2)}</span></div>
+                    <div class="action-btns no-print">
+                        <button class="btn-small" onclick="editShift(${s.id})">✏️ Edit</button>
+                        <button class="btn-small" style="color:red;" onclick="deleteShift(${s.id})">🗑 Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        const spendable = totalGross - totalTravel - totalTax;
+        document.getElementById('spendable').innerText = `$${spendable.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('taxReserve').innerText = `$${totalTax.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('totalTravel').innerText = `$${totalTravel.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        
+        const percent = Math.min((spendable / goalVal) * 100, 100);
+        document.getElementById('progressBar').style.width = percent + '%';
+        const rem = goalVal - spendable;
+        document.getElementById('goalStatus').innerText = rem > 0 ? `$${rem.toFixed(2)} more needed` : `🎉 Goal met!`;
+    }
+
+    // Initial load
+    renderFavorites();
+    renderShifts();
+</script>
+</body>
+</html>
