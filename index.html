@@ -3,94 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nurse Financial Planner</title>
+    <title>Nurse Planner: Smart Edition</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --warning: #f39c12; --danger: #e74c3c; }
-        body { font-family: -apple-system, sans-serif; padding: 15px; background: #f0f2f5; color: var(--primary); }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --warning: #f39c12; --danger: #e74c3c; --tax-color: #8e44ad; --gas-color: #16a085; }
+        body { font-family: -apple-system, sans-serif; padding: 10px; background: #f0f2f5; color: var(--primary); }
         .container { max-width: 500px; margin: auto; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .goal-box { background: var(--primary); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-        h2 { margin: 0 0 15px 0; font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        label { display: block; font-weight: bold; margin: 12px 0 5px; font-size: 0.85rem; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-save { background: var(--success); color: white; font-size: 1.1rem; }
-        .shift-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 8px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .net-profit { color: var(--success); font-weight: bold; font-size: 1.2rem; }
-        .travel-cost { color: var(--danger); font-size: 0.8rem; }
-        .progress-container { background: rgba(255,255,255,0.2); height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
-        .progress-bar { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
+        .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        
+        .main-total { background: var(--primary); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 15px; }
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .stat-card { background: white; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-bottom: 4px solid #ddd; }
+        
+        h2 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--accent); }
+        label { display: block; font-weight: bold; margin: 10px 0 3px; font-size: 0.8rem; }
+        input, select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        .btn-save { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; background: var(--success); color: white; font-size: 1.1rem; }
+        .shift-card { background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 6px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
+        .tax-line { color: var(--tax-color); font-weight: bold; font-size: 0.8rem; border-top: 1px dashed #eee; margin-top: 8px; padding-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- GOAL SECTION -->
-    <div class="goal-box">
-        <div style="font-size: 0.8rem; opacity: 0.8;">My Monthly Earnings Goal</div>
-        <input type="number" id="goalInput" value="2000" onchange="renderShifts()" style="background: transparent; color: white; border: 1px dashed rgba(255,255,255,0.5); text-align: center; font-size: 1.5rem; width: 150px; margin: 5px 0;">
-        <div id="goalRemaining" style="font-size: 0.9rem; margin-top: 5px;">Loading...</div>
-        <div class="progress-container"><div id="progressBar" class="progress-bar"></div></div>
+    <div class="main-total">
+        <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.7;">Take-Home (After Tax & Gas)</div>
+        <div id="spendable" style="font-size: 2.2rem; font-weight: bold;">$0.00</div>
     </div>
 
-    <!-- NEW SHIFT ENTRY -->
+    <div class="summary-grid">
+        <div class="stat-card" style="border-color: var(--tax-color);">
+            <div style="font-size: 0.6rem; color: #666;">TAX SAVINGS</div>
+            <div id="taxReserve" style="color: var(--tax-color); font-weight: bold;">$0.00</div>
+        </div>
+        <div class="stat-card" style="border-color: var(--gas-color);">
+            <div style="font-size: 0.6rem; color: #666;">GAS/LYFT TOTAL</div>
+            <div id="totalTravel" style="color: var(--gas-color); font-weight: bold;">$0.00</div>
+        </div>
+    </div>
+
+    <!-- SETTINGS FOR CALCULATION -->
+    <div class="card" style="background: #eef2f3;">
+        <h2 style="font-size: 0.9rem;">⚙️ Calculation Settings</h2>
+        <div style="display: flex; gap: 8px;">
+            <div>
+                <label>Tax %</label>
+                <input type="number" id="taxRate" value="25" onchange="renderShifts()">
+            </div>
+            <div>
+                <label>Gas Price</label>
+                <input type="number" id="gasPrice" value="3.50" step="0.01" onchange="renderShifts()">
+            </div>
+            <div>
+                <label>Car MPG</label>
+                <input type="number" id="mpg" value="25" onchange="renderShifts()">
+            </div>
+        </div>
+    </div>
+
+    <!-- ENTRY FORM -->
     <div class="card">
-        <h2>🏥 Plan/Log Shift</h2>
-        
-        <label>Facility & Unit</label>
-        <input type="text" id="facility" placeholder="e.g. St. Jude - ICU">
+        <h2>🏥 New Shift</h2>
+        <input type="text" id="facility" placeholder="Facility Name">
 
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label>Date</label>
-                <input type="date" id="shiftDate">
-            </div>
-            <div style="flex: 1;">
-                <label>Rate ($/hr)</label>
-                <input type="number" id="rate" value="50">
-            </div>
+        <div style="display: flex; gap: 8px;">
+            <div style="flex: 1.5;"><label>Date</label><input type="date" id="shiftDate"></div>
+            <div style="flex: 1;"><label>Rate $/hr</label><input type="number" id="rate" value="50"></div>
         </div>
 
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label>Start</label>
-                <input type="time" id="startTime" value="07:00">
-            </div>
-            <div style="flex: 1;">
-                <label>End</label>
-                <input type="time" id="endTime" value="19:00">
-            </div>
+        <div style="display: flex; gap: 8px;">
+            <div style="flex: 1;"><label>Start</label><input type="time" id="startTime" value="07:00"></div>
+            <div style="flex: 1;"><label>End</label><input type="time" id="endTime" value="19:00"></div>
         </div>
 
-        <label>How are you getting there?</label>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <select id="travelType" onchange="toggleTravelInput()">
-                <option value="drive">🚗 Driving (Personal)</option>
-                <option value="lyft">🚕 Lyft / Uber</option>
-                <option value="none">🚶 No Cost</option>
+        <label>Commute (To & From)</label>
+        <div style="display: flex; gap: 8px;">
+            <select id="travelType" style="flex: 1.2;">
+                <option value="gas">⛽ Borrowed Car (Gas)</option>
+                <option value="lyft">🚕 Lyft/Uber ($)</option>
+                <option value="drive">🚗 My Car (IRS .67)</option>
             </select>
-            <input type="number" id="travelVal" placeholder="Miles" style="flex: 0.8;">
+            <input type="number" id="travelVal" placeholder="Miles/Cost" style="flex: 0.8;">
         </div>
-        <p id="travelHelp" style="font-size: 0.7rem; color: #666; margin: 5px 0;">Calculated at $0.67/mile for taxes.</p>
 
-        <button class="btn btn-save" onclick="addShift()">Add to My Schedule</button>
+        <button class="btn-save" onclick="addShift()">Save Shift</button>
     </div>
 
     <div id="ledger"></div>
 </div>
 
 <script>
-    let shifts = JSON.parse(localStorage.getItem('nurse_planner_v3')) || [];
+    let shifts = JSON.parse(localStorage.getItem('nurse_smart_planner_v5')) || [];
     document.getElementById('shiftDate').valueAsDate = new Date();
-
-    function toggleTravelInput() {
-        const type = document.getElementById('travelType').value;
-        const input = document.getElementById('travelVal');
-        const help = document.getElementById('travelHelp');
-        if (type === 'drive') { input.placeholder = "Miles"; help.innerText = "Calculated at $0.67/mile for car wear/gas."; }
-        else if (type === 'lyft') { input.placeholder = "$ Cost"; help.innerText = "Enter the round-trip price of the Lyft."; }
-        else { input.style.display = 'none'; help.innerText = ""; }
-    }
 
     function addShift() {
         const facility = document.getElementById('facility').value;
@@ -101,69 +105,50 @@
         const start = document.getElementById('startTime').value;
         const end = document.getElementById('endTime').value;
 
-        if(!facility || !date) return alert("Please fill in Facility and Date");
+        if(!facility) return alert("Enter Facility Name");
 
+        // Time Math
         const sTime = new Date(`2000-01-01T${start}`);
         const eTime = new Date(`2000-01-01T${end}`);
         let hours = (eTime - sTime) / 1000 / 60 / 60;
         if (hours < 0) hours += 24;
 
+        // Travel Math
         let travelCost = 0;
-        if (travelType === 'drive') travelCost = travelVal * 0.67;
+        const currentGas = parseFloat(document.getElementById('gasPrice').value);
+        const currentMPG = parseFloat(document.getElementById('mpg').value);
+
+        if (travelType === 'gas') travelCost = (travelVal / currentMPG) * currentGas;
         else if (travelType === 'lyft') travelCost = travelVal;
+        else if (travelType === 'drive') travelCost = travelVal * 0.67;
 
         const shift = { id: Date.now(), facility, date, rate, hours, travelCost, travelType, travelVal };
         shifts.unshift(shift);
         saveAndRender();
+        document.getElementById('facility').value = "";
+    }
+
+    function deleteShift(id) {
+        if(confirm("Delete this shift?")) {
+            shifts = shifts.filter(s => s.id !== id);
+            saveAndRender();
+        }
     }
 
     function saveAndRender() {
-        localStorage.setItem('nurse_planner_v3', JSON.stringify(shifts));
+        localStorage.setItem('nurse_smart_planner_v5', JSON.stringify(shifts));
         renderShifts();
     }
 
     function renderShifts() {
         const ledger = document.getElementById('ledger');
-        const goalVal = parseFloat(document.getElementById('goalInput').value) || 1;
-        let totalNet = 0;
+        const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+        
+        let totalGross = 0;
+        let totalTravel = 0;
+        let totalTax = 0;
 
-        ledger.innerHTML = '<h3>Scheduled Shifts</h3>';
+        ledger.innerHTML = '<h3>Recent Shifts</h3>';
         
         shifts.forEach(s => {
-            const gross = s.hours * s.rate;
-            const net = gross - s.travelCost;
-            totalNet += net;
-
-            ledger.innerHTML += `
-                <div class="shift-card">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div>
-                            <strong>${s.facility}</strong><br>
-                            <span style="font-size: 0.8rem; color: #666;">${s.date} (${s.hours} hours)</span>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="net-profit">$${net.toFixed(2)} <span style="font-size: 0.7rem; color: #888;">net</span></div>
-                            <div class="travel-cost">-$${s.travelCost.toFixed(2)} travel</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        // Update Goal UI
-        const remaining = goalVal - totalNet;
-        const percent = Math.min((totalNet / goalVal) * 100, 100);
-        document.getElementById('progressBar').style.width = percent + '%';
-        
-        if (remaining > 0) {
-            document.getElementById('goalRemaining').innerText = `Keep going! $${remaining.toFixed(2)} left to reach goal.`;
-        } else {
-            document.getElementById('goalRemaining').innerText = `🎉 Goal Smashed! You are $${Math.abs(remaining).toFixed(2)} over!`;
-        }
-    }
-
-    renderShifts();
-</script>
-
-</body>
-</html>
+            const gross = s.hours
