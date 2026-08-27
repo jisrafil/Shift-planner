@@ -5,129 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nurse Shift Tracker</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #3498db;
-            --success: #27ae60;
-            --warning: #e67e22;
-        }
-        body { font-family: system-ui, sans-serif; padding: 20px; background: #f4f7f6; color: var(--primary); }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
-        h2 { margin-top: 0; color: var(--accent); }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select, button { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        button { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #2980b9; }
-        .shift-list { margin-top: 20px; }
-        .shift-item { background: #fff; padding: 15px; border-left: 5px solid var(--accent); margin-bottom: 10px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .signed-off { border-left-color: var(--success); background: #f0fff4; }
-        .not-signed { border-left-color: var(--warning); background: #fff5eb; }
-        .tag { font-size: 12px; padding: 3px 8px; border-radius: 10px; color: white; display: inline-block; }
-        .tag-signed { background: var(--success); }
-        .tag-pending { background: var(--warning); }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --warning: #f39c12; --danger: #e74c3c; }
+        body { font-family: -apple-system, sans-serif; padding: 15px; background: #f0f2f5; color: var(--primary); line-height: 1.5; }
+        .container { max-width: 500px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { margin-top: 0; color: var(--accent); font-size: 1.4rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        label { display: block; font-weight: bold; margin: 15px 0 5px; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        input:focus { border-color: var(--accent); outline: none; }
+        .btn { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        .btn-save { background: var(--success); color: white; }
+        .btn-delete { background: none; color: var(--danger); font-size: 0.8rem; padding: 5px; margin: 0; width: auto; }
+        .shift-item { background: white; padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 8px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
+        .signed { border-left-color: var(--success); }
+        .not-signed { border-left-color: var(--warning); }
+        .status-badge { font-size: 0.7rem; text-transform: uppercase; padding: 4px 8px; border-radius: 5px; color: white; font-weight: bold; }
+        .bg-success { background: var(--success); }
+        .bg-warning { background: var(--warning); }
+        .total-box { background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>🏥 Shift Entry</h2>
-    
-    <div class="input-group">
+<div class="container">
+    <div class="total-box">
+        <div style="font-size: 0.9rem; opacity: 0.8;">Total Estimated Pay (This Month)</div>
+        <div id="monthlyTotal" style="font-size: 1.8rem; font-weight: bold;">$0.00</div>
+    </div>
+
+    <div class="card">
+        <h2>🏥 Log New Shift</h2>
+        
         <label>Facility Name</label>
-        <input type="text" id="facility" placeholder="e.g. St. Mary's General">
-    </div>
+        <input type="text" id="facility" placeholder="Where did you work?">
 
-    <div class="input-group" style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-            <label>Date</label>
-            <input type="date" id="shiftDate">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>Date</label>
+                <input type="date" id="shiftDate">
+            </div>
+            <div style="flex: 1;">
+                <label>Hourly Rate ($)</label>
+                <input type="number" id="rate" value="50">
+            </div>
         </div>
-        <div style="flex: 1;">
-            <label>Hourly Rate ($)</label>
-            <input type="number" id="rate" value="50">
-        </div>
-    </div>
 
-    <div class="input-group" style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-            <label>Start Time</label>
-            <input type="time" id="startTime">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>Start Time</label>
+                <input type="time" id="startTime" value="07:00">
+            </div>
+            <div style="flex: 1;">
+                <label>End Time</label>
+                <input type="time" id="endTime" value="19:00">
+            </div>
         </div>
-        <div style="flex: 1;">
-            <label>End Time</label>
-            <input type="time" id="endTime">
-        </div>
-    </div>
 
-    <div class="input-group">
-        <label>
-            <input type="checkbox" id="signed" style="width: auto;"> ✍️ Timesheet Signed?
+        <label style="display: flex; align-items: center; cursor: pointer; background: #f9f9f9; padding: 10px; border-radius: 8px;">
+            <input type="checkbox" id="signed" style="width: 20px; height: 20px; margin-right: 10px;"> 
+            <span>✍️ Timesheet Signed?</span>
         </label>
+
+        <button class="btn btn-save" onclick="addShift()">Save Shift</button>
     </div>
 
-    <button onclick="addShift()">Save Shift to Ledger</button>
-</div>
-
-<div class="shift-list" id="ledger">
-    <!-- Shifts will appear here -->
+    <div id="ledger"></div>
 </div>
 
 <script>
-    // Load data on start
     let shifts = JSON.parse(localStorage.getItem('nurse_shifts')) || [];
-    renderShifts();
+    
+    // Set default date to today
+    document.getElementById('shiftDate').valueAsDate = new Date();
 
     function addShift() {
-        const shift = {
-            id: Date.now(),
-            facility: document.getElementById('facility').value,
-            date: document.getElementById('shiftDate').value,
-            rate: document.getElementById('rate').value,
-            start: document.getElementById('startTime').value,
-            end: document.getElementById('endTime').value,
-            signed: document.getElementById('signed').checked
-        };
+        const facility = document.getElementById('facility').value;
+        const date = document.getElementById('shiftDate').value;
+        const rate = parseFloat(document.getElementById('rate').value);
+        const start = document.getElementById('startTime').value;
+        const end = document.getElementById('endTime').value;
+        const signed = document.getElementById('signed').checked;
 
-        if(!shift.facility || !shift.date) {
-            alert("Please at least fill in the Facility and Date!");
-            return;
-        }
+        if(!facility || !date) return alert("Please enter Facility and Date");
 
-        shifts.unshift(shift); // Add to beginning of list
-        localStorage.setItem('nurse_shifts', JSON.stringify(shifts));
-        renderShifts();
+        // Calculate hours roughly (End - Start)
+        const sTime = new Date(`2000-01-01T${start}`);
+        const eTime = new Date(`2000-01-01T${end}`);
+        let diff = (eTime - sTime) / 1000 / 60 / 60;
+        if (diff < 0) diff += 24; // Handle overnight shifts
+
+        const shift = { id: Date.now(), facility, date, rate, start, end, signed, hours: diff.toFixed(2) };
+        shifts.unshift(shift);
+        saveAndRender();
         
-        // Clear form for next time
+        // Reset facility for next time
         document.getElementById('facility').value = "";
         document.getElementById('signed').checked = false;
     }
 
     function deleteShift(id) {
-        shifts = shifts.filter(s => s.id !== id);
+        if(confirm("Delete this shift?")) {
+            shifts = shifts.filter(s => s.id !== id);
+            saveAndRender();
+        }
+    }
+
+    function saveAndRender() {
         localStorage.setItem('nurse_shifts', JSON.stringify(shifts));
         renderShifts();
     }
 
     function renderShifts() {
         const ledger = document.getElementById('ledger');
-        ledger.innerHTML = '<h3>Recent Shifts</h3>';
+        const totalDisp = document.getElementById('monthlyTotal');
+        ledger.innerHTML = '<h3 style="margin-left:5px;">Shift History</h3>';
+        
+        let totalPay = 0;
         
         shifts.forEach(s => {
-            const statusClass = s.signed ? 'signed-off' : 'not-signed';
-            const statusTag = s.signed ? '<span class="tag tag-signed">Signed</span>' : '<span class="tag tag-pending">Pending Signature</span>';
+            const pay = (s.hours * s.rate).toFixed(2);
+            totalPay += parseFloat(pay);
+            const statusClass = s.signed ? 'signed' : 'not-signed';
+            const statusLabel = s.signed ? 'Signed' : 'Needs Signature';
+            const badgeClass = s.signed ? 'bg-success' : 'bg-warning';
             
             ledger.innerHTML += `
-                <div class="shift-item ${statusClass}">
-                    <strong>${s.date}</strong> - ${s.facility} ${statusTag}<br>
-                    <small>${s.start} to ${s.end} | Rate: $${s.rate}/hr</small>
-                    <button onclick="deleteShift(${s.id})" style="width: auto; padding: 5px 10px; background: #e74c3c; float: right; font-size: 12px;">Delete</button>
-                    <div style="clear: both;"></div>
-                </div>
-            `;
-        });
-    }
-</script>
-
-</body>
-</html>
+                <div class="shift
