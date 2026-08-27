@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nurse Ledger: Pro Master</title>
+    <title>Nurse Aide Planner</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --warning: #f39c12; --danger: #e74c3c; --tax-color: #8e44ad; --gas-color: #16a085; }
         body { font-family: -apple-system, sans-serif; padding: 10px; background: #f0f2f5; color: var(--primary); }
@@ -22,18 +22,18 @@
         label { display: block; font-weight: bold; margin: 10px 0 3px; font-size: 0.8rem; }
         input, select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         
-        .fav-facility { display: inline-block; background: #eee; padding: 5px 10px; border-radius: 15px; font-size: 0.7rem; margin: 2px; cursor: pointer; border: 1px solid #ccc; }
+        .fav-facility { display: inline-flex; align-items: center; background: #eee; padding: 5px 10px; border-radius: 15px; font-size: 0.75rem; margin: 3px; cursor: pointer; border: 1px solid #ccc; }
+        .del-fav { margin-left: 8px; color: var(--danger); font-weight: bold; font-size: 1rem; }
         
         .btn-save { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; background: var(--success); color: white; font-size: 1.1rem; }
         .btn-export { width: 100%; padding: 10px; border-radius: 8px; border: none; background: var(--accent); color: white; font-weight: bold; margin-bottom: 15px; cursor: pointer; }
         
         .shift-card { background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 6px solid var(--accent); position: relative; }
         .tax-line { color: var(--tax-color); font-weight: bold; font-size: 0.8rem; border-top: 1px dashed #eee; margin-top: 8px; padding-top: 5px; }
-        
-        .btn-small { background: none; border: 1px solid #ddd; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; margin-right: 5px; }
+        .btn-small { background: none; border: 1px solid #ddd; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; margin-right: 5px; margin-top: 8px;}
 
         @media print {
-            .goal-box, #formCard, .settings-card, .btn-export, .btn-small, .btn-save, h3 { display: none !important; }
+            .goal-box, #formCard, .settings-card, .btn-export, .btn-small, .btn-save, h3, .backup-section { display: none !important; }
             body { background: white; }
             .shift-card { border: 1px solid #ccc; break-inside: avoid; }
         }
@@ -42,7 +42,7 @@
 <body>
 
 <div class="container">
-    <!-- TOP GOAL -->
+    <!-- GOAL SECTION -->
     <div class="goal-box">
         <div style="font-size: 0.7rem; opacity: 0.8;">MONTHLY SPENDABLE GOAL</div>
         <input type="number" id="goalInput" value="2000" oninput="renderShifts()" style="background: transparent; color: white; border: 1px dashed rgba(255,255,255,0.4); text-align: center; font-size: 1.8rem; width: 160px; outline: none;">
@@ -52,6 +52,7 @@
 
     <button class="btn-export" onclick="downloadCSV()">📥 Download Excel/CSV Report</button>
 
+    <!-- DASHBOARD -->
     <div class="summary-grid">
         <div class="stat-card" style="border-color: var(--success); grid-column: span 2;">
             <div style="font-size: 0.7rem; color: #666;">TAKE-HOME (AFTER TAX/GAS)</div>
@@ -78,22 +79,22 @@
         </div>
 
         <div style="display: flex; gap: 8px;">
-            <div style="flex: 1;"><label>Start</label><input type="time" id="startTime" value="07:00"></div>
-            <div style="flex: 1;"><label>End</label><input type="time" id="endTime" value="19:00"></div>
+            <div style="flex: 1;"><label>Start Time</label><input type="time" id="startTime" value="07:00"></div>
+            <div style="flex: 1;"><label>End Time</label><input type="time" id="endTime" value="19:00"></div>
         </div>
 
-        <label style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer;">
-            <input type="checkbox" id="breakTaken" style="width: auto;"> 🥪 Took 30-min break?
+        <label style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 0.85rem;">
+            <input type="checkbox" id="breakTaken" style="width: auto;"> 🥪 Subract 30-min break?
         </label>
 
-        <label>Travel Method</label>
+        <label>Commute (Round Trip)</label>
         <div style="display: flex; gap: 8px;">
             <select id="travelType" style="flex: 1.2;">
                 <option value="gas">⛽ Borrowed Car (Gas)</option>
                 <option value="lyft">🚕 Lyft/Uber ($)</option>
                 <option value="drive">🚗 My Car (IRS .67)</option>
             </select>
-            <input type="number" id="travelVal" placeholder="Miles/Cost" value="0" style="flex: 0.8;">
+            <input type="number" id="travelVal" placeholder="Total Miles" value="0" style="flex: 0.8;">
         </div>
 
         <input type="hidden" id="editingId" value="">
@@ -111,14 +112,17 @@
     </div>
 
     <div id="ledger"></div>
+
+    <div class="backup-section" style="text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #ccc; color: #888;">
+        <p style="font-size: 0.7rem;">⚠️ Chemo Brain Safety Tip: Copy your backup once a week and paste it into a Note or Email.</p>
+        <button onclick="copyBackup()" style="font-size: 0.7rem; padding: 5px 10px;">📋 Copy Backup Data</button>
+    </div>
 </div>
 
 <script>
-    // Initialize data
     let shifts = JSON.parse(localStorage.getItem('nurse_master_data')) || [];
     let favorites = JSON.parse(localStorage.getItem('nurse_fav_facilities')) || [];
     
-    // Set current date
     document.getElementById('shiftDate').valueAsDate = new Date();
 
     function saveCurrentFacility() {
@@ -130,9 +134,20 @@
         }
     }
 
+    function removeFavorite(name, e) {
+        e.stopPropagation();
+        favorites = favorites.filter(f => f !== name);
+        localStorage.setItem('nurse_fav_facilities', JSON.stringify(favorites));
+        renderFavorites();
+    }
+
     function renderFavorites() {
         const list = document.getElementById('favList');
-        list.innerHTML = favorites.map(f => `<span class="fav-facility" onclick="document.getElementById('facility').value='${f}'">${f}</span>`).join('');
+        list.innerHTML = favorites.map(f => `
+            <span class="fav-facility" onclick="document.getElementById('facility').value='${f}'">
+                ${f} <span class="del-fav" onclick="removeFavorite('${f}', event)">×</span>
+            </span>
+        `).join('');
     }
 
     function addShift() {
@@ -146,35 +161,24 @@
         const end = document.getElementById('endTime').value;
         const breakTaken = document.getElementById('breakTaken').checked;
 
-        if(!facility || !date || !start || !end) {
-            alert("Please fill in Facility, Date, and Times!");
-            return;
-        }
+        if(!facility || !date) return alert("Facility and Date required!");
 
-        // Calculation logic
         const sTime = new Date(`2000-01-01T${start}`);
         const eTime = new Date(`2000-01-01T${end}`);
         let hours = (eTime - sTime) / 1000 / 60 / 60;
         if (hours < 0) hours += 24;
         if (breakTaken) hours -= 0.5;
 
-        let travelCost = 0;
+        let tCost = 0;
         const gasP = parseFloat(document.getElementById('gasPrice').value) || 0;
         const carM = parseFloat(document.getElementById('mpg').value) || 1;
-        if (travelType === 'gas') travelCost = (travelVal / carM) * gasP;
-        else if (travelType === 'lyft') travelCost = travelVal;
-        else if (travelType === 'drive') travelCost = travelVal * 0.67;
+        if (travelType === 'gas') tCost = (travelVal / carM) * gasP;
+        else if (travelType === 'lyft') tCost = travelVal;
+        else if (travelType === 'drive') tCost = travelVal * 0.67;
 
-        const shiftData = { 
-            id: id ? parseInt(id) : Date.now(), 
-            facility, date, rate, hours, travelCost, travelType, travelVal, start, end, breakTaken 
-        };
-
-        if(id) {
-            shifts = shifts.map(s => s.id === parseInt(id) ? shiftData : s);
-        } else {
-            shifts.unshift(shiftData);
-        }
+        const data = { id: id ? parseInt(id) : Date.now(), facility, date, rate, hours, travelCost: tCost, travelType, travelVal, start, end, breakTaken };
+        if(id) shifts = shifts.map(s => s.id === parseInt(id) ? data : s);
+        else shifts.unshift(data);
 
         saveAndRender();
         resetForm();
@@ -182,8 +186,6 @@
 
     function editShift(id) {
         const s = shifts.find(x => x.id === id);
-        if(!s) return;
-        
         document.getElementById('editingId').value = s.id;
         document.getElementById('facility').value = s.facility;
         document.getElementById('shiftDate').value = s.date;
@@ -193,7 +195,6 @@
         document.getElementById('travelType').value = s.travelType || "gas";
         document.getElementById('travelVal').value = s.travelVal || 0;
         document.getElementById('breakTaken').checked = s.breakTaken || false;
-        
         document.getElementById('formCard').classList.add('editing-mode');
         document.getElementById('formTitle').innerText = "✏️ Editing Shift";
         document.getElementById('saveBtn').innerText = "Update Shift";
@@ -211,31 +212,30 @@
         document.getElementById('cancelBtn').style.display = "none";
     }
 
+    function downloadCSV() {
+        let csv = "Date,Facility,Hours,NetPay\n";
+        const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+        shifts.forEach(s => {
+            const net = (s.hours * s.rate) - s.travelCost - ((s.hours * s.rate) * taxRate);
+            csv += `${s.date},${s.facility},${s.hours},${net.toFixed(2)}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'Shift_Report.csv'; a.click();
+    }
+
+    function copyBackup() {
+        const data = localStorage.getItem('nurse_master_data');
+        navigator.clipboard.writeText(data);
+        alert("Backup copied to clipboard! Paste it into a Note or Email for safekeeping.");
+    }
+
     function deleteShift(id) {
         if(confirm("Delete this shift?")) {
             shifts = shifts.filter(s => s.id !== id);
             saveAndRender();
         }
-    }
-
-    function downloadCSV() {
-        if(shifts.length === 0) return alert("No shifts to export!");
-        let csv = "Date,Facility,Hours,Rate,TravelCost,NetPay\n";
-        const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
-        
-        shifts.forEach(s => {
-            const gross = (s.hours || 0) * (s.rate || 0);
-            const net = gross - (s.travelCost || 0) - (gross * taxRate);
-            csv += `${s.date},${s.facility},${s.hours},${s.rate},${s.travelCost.toFixed(2)},${net.toFixed(2)}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.setAttribute('href', url);
-        a.setAttribute('download', 'Nurse_Shifts_Export.csv');
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
     }
 
     function saveAndRender() {
@@ -245,34 +245,24 @@
 
     function renderShifts() {
         const ledger = document.getElementById('ledger');
-        const goalVal = parseFloat(document.getElementById('goalInput').value) || 1;
-        const taxRate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100;
-        
-        let totalGross = 0, totalTravel = 0, totalTax = 0;
+        const goal = parseFloat(document.getElementById('goalInput').value) || 1;
+        const taxR = parseFloat(document.getElementById('taxRate').value) / 100;
+        let tGross = 0, tTravel = 0, tTax = 0;
 
         ledger.innerHTML = '<h3>Recent History</h3>';
-        
         shifts.forEach(s => {
-            // Fix for old data: ensure hours and rate are numbers
-            const h = parseFloat(s.hours) || 0;
-            const r = parseFloat(s.rate) || 0;
-            const t = parseFloat(s.travelCost) || 0;
-
-            const gross = h * r;
-            const shiftTax = gross * taxRate;
-            const shiftNet = gross - t - shiftTax;
-            
-            totalGross += gross; 
-            totalTravel += t; 
-            totalTax += shiftTax;
+            const gross = s.hours * s.rate;
+            const sTax = gross * taxR;
+            const sNet = gross - s.travelCost - sTax;
+            tGross += gross; tTravel += s.travelCost; tTax += sTax;
 
             ledger.innerHTML += `
                 <div class="shift-card">
                     <div style="display: flex; justify-content: space-between;">
-                        <div><strong>${s.facility}</strong><br><span style="font-size:0.75rem;">${s.date} • ${h}h</span></div>
+                        <div><strong>${s.facility}</strong><br><span style="font-size:0.75rem;">${s.date} • ${s.hours}h</span></div>
                         <div style="text-align: right;"><div style="color:var(--success); font-weight:bold;">+$${gross.toFixed(2)}</div></div>
                     </div>
-                    <div class="tax-line">Spendable: $${shiftNet.toFixed(2)} <span style="float:right; font-weight:normal; color:#888;">Travel: $${t.toFixed(2)}</span></div>
+                    <div class="tax-line">Spendable: $${sNet.toFixed(2)} <span style="float:right; font-weight:normal; color:#888;">Travel: $${s.travelCost.toFixed(2)}</span></div>
                     <div class="action-btns no-print">
                         <button class="btn-small" onclick="editShift(${s.id})">✏️ Edit</button>
                         <button class="btn-small" style="color:red;" onclick="deleteShift(${s.id})">🗑 Delete</button>
@@ -281,18 +271,16 @@
             `;
         });
 
-        const spendable = totalGross - totalTravel - totalTax;
+        const spendable = tGross - tTravel - tTax;
         document.getElementById('spendable').innerText = `$${spendable.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        document.getElementById('taxReserve').innerText = `$${totalTax.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        document.getElementById('totalTravel').innerText = `$${totalTravel.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        
-        const percent = Math.min((spendable / goalVal) * 100, 100);
-        document.getElementById('progressBar').style.width = percent + '%';
-        const rem = goalVal - spendable;
-        document.getElementById('goalStatus').innerText = rem > 0 ? `$${rem.toFixed(2)} more needed` : `🎉 Goal met!`;
+        document.getElementById('taxReserve').innerText = `$${tTax.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('totalTravel').innerText = `$${tTravel.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        const pct = Math.min((spendable / goal) * 100, 100);
+        document.getElementById('progressBar').style.width = pct + '%';
+        const rem = goal - spendable;
+        document.getElementById('goalStatus').innerText = rem > 0 ? `$${rem.toFixed(2)} left to goal` : `🎉 Goal met!`;
     }
 
-    // Initial load
     renderFavorites();
     renderShifts();
 </script>
