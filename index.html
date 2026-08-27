@@ -9,7 +9,6 @@
         body { font-family: -apple-system, sans-serif; padding: 10px; background: #f0f2f5; color: var(--primary); }
         .container { max-width: 500px; margin: auto; }
         
-        /* HEADER GOAL BOX */
         .goal-box { background: var(--primary); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .progress-container { background: rgba(255,255,255,0.2); height: 12px; border-radius: 6px; margin: 10px 0; overflow: hidden; }
         .progress-bar { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
@@ -23,7 +22,6 @@
         label { display: block; font-weight: bold; margin: 10px 0 3px; font-size: 0.8rem; }
         input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         
-        /* FAVORITES */
         .fav-facility { display: inline-flex; align-items: center; background: #eee; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; margin: 3px; cursor: pointer; border: 1px solid #ccc; font-weight: 500; }
         .del-fav { margin-left: 10px; color: var(--danger); font-weight: bold; font-size: 1.2rem; line-height: 1; }
         
@@ -99,9 +97,9 @@
         <label>Commute Details (Include both ways)</label>
         <div style="display: flex; gap: 8px;">
             <select id="travelType" style="flex: 1.4;">
+                <option value="drive" selected>🚗 My Car (Total Miles)</option>
                 <option value="gas">⛽ Borrowed Car (Total Miles)</option>
                 <option value="lyft">🚕 Lyft/Uber (Total $ Cost)</option>
-                <option value="drive">🚗 My Car (Total Miles)</option>
                 <option value="mixed">💰 Mixed/Other (Total $ Cost)</option>
             </select>
             <input type="number" id="travelVal" placeholder="Amount" value="0" style="flex: 0.6;">
@@ -124,9 +122,10 @@
 
     <div id="ledger"></div>
 
+    <!-- NEUTRAL REMINDER SECTION -->
     <div class="backup-section" style="text-align: center; margin-top: 40px; padding: 25px; border-top: 2px dashed #ccc; color: #888;">
-        <p style="font-size: 0.8rem; font-weight: bold; margin-bottom: 10px;">🧠 Chemo Brain Safety Tip:</p>
-        <p style="font-size: 0.75rem; margin-bottom: 15px;">Backup your data once a week. Copy it and paste it into an Email or Note to yourself.</p>
+        <p style="font-size: 0.8rem; font-weight: bold; margin-bottom: 10px;">💾 Regular Backup Reminder:</p>
+        <p style="font-size: 0.75rem; margin-bottom: 15px;">Keep your records safe. Once a week, copy your backup and paste it into an Email or Note for safekeeping.</p>
         <button onclick="copyBackup()" style="background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">📋 Copy Backup to Clipboard</button>
     </div>
 </div>
@@ -207,7 +206,7 @@
         document.getElementById('rate').value = s.rate;
         document.getElementById('startTime').value = s.start || "07:00";
         document.getElementById('endTime').value = s.end || "19:00";
-        document.getElementById('travelType').value = s.travelType || "gas";
+        document.getElementById('travelType').value = s.travelType || "drive";
         document.getElementById('travelVal').value = s.travelVal || 0;
         document.getElementById('breakTaken').checked = s.breakTaken || false;
         
@@ -223,6 +222,7 @@
         document.getElementById('facility').value = "";
         document.getElementById('breakTaken').checked = false;
         document.getElementById('travelVal').value = 0;
+        document.getElementById('travelType').value = "drive";
         document.getElementById('formCard').classList.remove('editing-mode');
         document.getElementById('formTitle').innerText = "🏥 Add New Shift";
         document.getElementById('saveBtn').innerText = "Save to Ledger";
@@ -275,11 +275,9 @@
             const h = parseFloat(s.hours) || 0;
             const r = parseFloat(s.rate) || 0;
             const t = parseFloat(s.travelCost) || 0;
-            
             const gross = h * r;
             const sTax = gross * taxR;
             const sNet = gross - t - sTax;
-            
             tGross += gross; tTravel += t; tTax += sTax;
 
             ledger.innerHTML += `
@@ -315,9 +313,11 @@
         const pct = Math.min((spendable / goal) * 100, 100);
         document.getElementById('progressBar').style.width = pct + '%';
         const rem = goal - spendable;
+        const remStr = `$${Math.abs(rem).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        
         document.getElementById('goalStatus').innerHTML = rem > 0 
-            ? `Keep going! <strong>$${rem.toLocaleString(undefined, {minimumFractionDigits: 2})}</strong> more to reach your goal.` 
-            : `🎉 <strong>GOAL SMASHED!</strong> You are $${Math.abs(rem).toFixed(2)} over target!`;
+            ? `Keep going! <strong>${remStr}</strong> more to reach your goal.` 
+            : `🎉 <strong>GOAL SMASHED!</strong> You are ${remStr} over target!`;
     }
 
     renderFavorites();
