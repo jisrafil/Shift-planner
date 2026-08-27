@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nurse Planner: Smart Edition</title>
+    <title>Nurse Planner: Master Edition</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --warning: #f39c12; --danger: #e74c3c; --tax-color: #8e44ad; --gas-color: #16a085; }
         body { font-family: -apple-system, sans-serif; padding: 10px; background: #f0f2f5; color: var(--primary); }
         .container { max-width: 500px; margin: auto; }
+        
+        /* GOAL & PROGRESS SECTION */
+        .goal-box { background: var(--primary); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .progress-container { background: rgba(255,255,255,0.2); height: 12px; border-radius: 6px; margin: 10px 0; overflow: hidden; }
+        .progress-bar { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
+        
         .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
         
-        .main-total { background: var(--primary); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 15px; }
+        /* DASHBOARD GRID */
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .stat-card { background: white; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-bottom: 4px solid #ddd; }
         
@@ -19,51 +25,50 @@
         input, select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         
         .btn-save { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; background: var(--success); color: white; font-size: 1.1rem; }
-        .shift-card { background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 6px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
+        .shift-card { background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 6px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .tax-line { color: var(--tax-color); font-weight: bold; font-size: 0.8rem; border-top: 1px dashed #eee; margin-top: 8px; padding-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="main-total">
-        <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.7;">Take-Home (After Tax & Gas)</div>
-        <div id="spendable" style="font-size: 2.2rem; font-weight: bold;">$0.00</div>
+    <!-- TOP GOAL TRACKER -->
+    <div class="goal-box">
+        <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.8;">Target Monthly Earnings</div>
+        <input type="number" id="goalInput" value="2000" onchange="renderShifts()" style="background: transparent; color: white; border: 1px dashed rgba(255,255,255,0.4); text-align: center; font-size: 1.8rem; width: 160px; margin: 5px 0; outline: none;">
+        <div class="progress-container"><div id="progressBar" class="progress-bar"></div></div>
+        <div id="goalStatus" style="font-size: 0.85rem;">Calculating...</div>
     </div>
 
+    <!-- SPENDABLE DASHBOARD -->
     <div class="summary-grid">
+        <div class="stat-card" style="border-color: var(--success); grid-column: span 2;">
+            <div style="font-size: 0.7rem; color: #666;">REAL SPENDABLE (AFTER TAX & TRAVEL)</div>
+            <div id="spendable" style="color: var(--success); font-size: 1.8rem; font-weight: bold;">$0.00</div>
+        </div>
         <div class="stat-card" style="border-color: var(--tax-color);">
             <div style="font-size: 0.6rem; color: #666;">TAX SAVINGS</div>
             <div id="taxReserve" style="color: var(--tax-color); font-weight: bold;">$0.00</div>
         </div>
         <div class="stat-card" style="border-color: var(--gas-color);">
-            <div style="font-size: 0.6rem; color: #666;">GAS/LYFT TOTAL</div>
+            <div style="font-size: 0.6rem; color: #666;">TRAVEL COSTS</div>
             <div id="totalTravel" style="color: var(--gas-color); font-weight: bold;">$0.00</div>
         </div>
     </div>
 
-    <!-- SETTINGS FOR CALCULATION -->
-    <div class="card" style="background: #eef2f3;">
-        <h2 style="font-size: 0.9rem;">⚙️ Calculation Settings</h2>
+    <!-- SETTINGS -->
+    <div class="card" style="background: #eef2f3; padding: 10px;">
+        <h2 style="font-size: 0.8rem; text-transform: uppercase;">⚙️ Settings</h2>
         <div style="display: flex; gap: 8px;">
-            <div>
-                <label>Tax %</label>
-                <input type="number" id="taxRate" value="25" onchange="renderShifts()">
-            </div>
-            <div>
-                <label>Gas Price</label>
-                <input type="number" id="gasPrice" value="3.50" step="0.01" onchange="renderShifts()">
-            </div>
-            <div>
-                <label>Car MPG</label>
-                <input type="number" id="mpg" value="25" onchange="renderShifts()">
-            </div>
+            <div><label>Tax %</label><input type="number" id="taxRate" value="25" onchange="renderShifts()"></div>
+            <div><label>Gas $</label><input type="number" id="gasPrice" value="3.50" step="0.01" onchange="renderShifts()"></div>
+            <div><label>MPG</label><input type="number" id="mpg" value="25" onchange="renderShifts()"></div>
         </div>
     </div>
 
     <!-- ENTRY FORM -->
     <div class="card">
-        <h2>🏥 New Shift</h2>
+        <h2>🏥 Add Shift</h2>
         <input type="text" id="facility" placeholder="Facility Name">
 
         <div style="display: flex; gap: 8px;">
@@ -76,7 +81,7 @@
             <div style="flex: 1;"><label>End</label><input type="time" id="endTime" value="19:00"></div>
         </div>
 
-        <label>Commute (To & From)</label>
+        <label>Travel Method</label>
         <div style="display: flex; gap: 8px;">
             <select id="travelType" style="flex: 1.2;">
                 <option value="gas">⛽ Borrowed Car (Gas)</option>
@@ -86,14 +91,15 @@
             <input type="number" id="travelVal" placeholder="Miles/Cost" style="flex: 0.8;">
         </div>
 
-        <button class="btn-save" onclick="addShift()">Save Shift</button>
+        <button class="btn-save" onclick="addShift()">Add Shift to Plan</button>
     </div>
 
     <div id="ledger"></div>
 </div>
 
 <script>
-    let shifts = JSON.parse(localStorage.getItem('nurse_smart_planner_v5')) || [];
+    // Using a consistent key 'nurse_master_data' so your info stays put
+    let shifts = JSON.parse(localStorage.getItem('nurse_master_data')) || [];
     document.getElementById('shiftDate').valueAsDate = new Date();
 
     function addShift() {
@@ -107,22 +113,20 @@
 
         if(!facility) return alert("Enter Facility Name");
 
-        // Time Math
         const sTime = new Date(`2000-01-01T${start}`);
         const eTime = new Date(`2000-01-01T${end}`);
         let hours = (eTime - sTime) / 1000 / 60 / 60;
         if (hours < 0) hours += 24;
 
-        // Travel Math
+        // Current Settings for Travel
+        const gasP = parseFloat(document.getElementById('gasPrice').value);
+        const carM = parseFloat(document.getElementById('mpg').value);
         let travelCost = 0;
-        const currentGas = parseFloat(document.getElementById('gasPrice').value);
-        const currentMPG = parseFloat(document.getElementById('mpg').value);
-
-        if (travelType === 'gas') travelCost = (travelVal / currentMPG) * currentGas;
+        if (travelType === 'gas') travelCost = (travelVal / carM) * gasP;
         else if (travelType === 'lyft') travelCost = travelVal;
         else if (travelType === 'drive') travelCost = travelVal * 0.67;
 
-        const shift = { id: Date.now(), facility, date, rate, hours, travelCost, travelType, travelVal };
+        const shift = { id: Date.now(), facility, date, rate, hours, travelCost };
         shifts.unshift(shift);
         saveAndRender();
         document.getElementById('facility').value = "";
@@ -136,19 +140,69 @@
     }
 
     function saveAndRender() {
-        localStorage.setItem('nurse_smart_planner_v5', JSON.stringify(shifts));
+        localStorage.setItem('nurse_master_data', JSON.stringify(shifts));
         renderShifts();
     }
 
     function renderShifts() {
         const ledger = document.getElementById('ledger');
+        const goalVal = parseFloat(document.getElementById('goalInput').value) || 1;
         const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
         
         let totalGross = 0;
         let totalTravel = 0;
         let totalTax = 0;
 
-        ledger.innerHTML = '<h3>Recent Shifts</h3>';
+        ledger.innerHTML = '<h3>Your Schedule</h3>';
         
         shifts.forEach(s => {
-            const gross = s.hours
+            const gross = s.hours * s.rate;
+            const shiftTax = gross * taxRate;
+            const shiftNet = gross - s.travelCost - shiftTax;
+            
+            totalGross += gross;
+            totalTravel += s.travelCost;
+            totalTax += shiftTax;
+
+            ledger.innerHTML += `
+                <div class="shift-card">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>${s.facility}</strong><br>
+                            <span style="font-size: 0.75rem; color: #666;">${s.date} • ${s.hours}h</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight:bold; color:var(--success)">+$${gross.toFixed(2)}</div>
+                            <div style="font-size: 0.7rem; color: var(--danger);">-$${s.travelCost.toFixed(2)} travel</div>
+                        </div>
+                    </div>
+                    <div class="tax-line">
+                        Tax: $${shiftTax.toFixed(2)}
+                        <span style="float: right; color: var(--primary);">Net: $${shiftNet.toFixed(2)}</span>
+                    </div>
+                    <button onclick="deleteShift(${s.id})" style="border:none; background:none; color:#ddd; font-size:0.6rem; cursor:pointer;">Delete</button>
+                </div>
+            `;
+        });
+
+        const spendable = totalGross - totalTravel - totalTax;
+        
+        // Update Dashboard
+        document.getElementById('spendable').innerText = `$${spendable.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('taxReserve').innerText = `$${totalTax.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('totalTravel').innerText = `$${totalTravel.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+        // Update Progress Bar
+        const percent = Math.min((spendable / goalVal) * 100, 100);
+        document.getElementById('progressBar').style.width = percent + '%';
+        const remaining = goalVal - spendable;
+        document.getElementById('goalStatus').innerText = remaining > 0 
+            ? `$${remaining.toFixed(2)} more needed to hit goal`
+            : `🎉 Goal met! You are $${Math.abs(remaining).toFixed(2)} over.`;
+    }
+
+    renderShifts();
+</script>
+
+</body>
+</html>
